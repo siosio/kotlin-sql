@@ -29,25 +29,29 @@ class Query(internal val connection: Connection, private val converterFactory: V
 
   fun <T : Any> forEach(type: KClass<T>, query: String, block: (row: T) -> Unit): Unit {
     val classMeta = ClassMeta(type)
-    connection.createStatement().use { st ->
-      st.executeQuery(query).use { rs ->
-        while (rs.next()) {
-          val result = createResultObject(classMeta, rs)
-          block(result)
-        }
+    executeQuery(query) {
+      while (it.next()) {
+        val result = createResultObject(classMeta, it)
+        block(result)
       }
     }
   }
 
+  /**
+   * find first row.
+   *
+   * @param T return data type
+   * @param type return type
+   * @param query sql
+   * @return first row.
+   */
   fun <T : Any> findFirstRow(type: KClass<T>, query: String): T {
     val classMeta = ClassMeta(type)
-    connection.createStatement().use { st ->
-      st.executeQuery(query).use { rs ->
-        if (rs.next()) {
-          return createResultObject(classMeta, rs)
-        } else {
-          throw NoDataFoundException(query)
-        }
+    executeQuery(query) {
+      if (it.next()) {
+        return createResultObject(classMeta, it)
+      } else {
+        throw NoDataFoundException(query)
       }
     }
     throw IllegalStateException("not arrowed hear.")
@@ -57,6 +61,14 @@ class Query(internal val connection: Connection, private val converterFactory: V
     connection.createStatement().use { st ->
       logger.trace("execute sql. sql: ${sql}")
       st.execute(sql)
+    }
+  }
+
+  private inline fun <T> executeQuery(query: String, block: (ResultSet) -> T): Unit {
+    connection.createStatement().use { st ->
+      st.executeQuery(query).use { rs ->
+        block(rs)
+      }
     }
   }
 
