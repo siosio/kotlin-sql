@@ -21,7 +21,7 @@ class Query(internal val connection: Connection, private val converterFactory: V
 
   fun <T> use(block: Query.() -> T): T {
     return try {
-      block();
+      block()
     } finally {
       close()
     }
