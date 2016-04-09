@@ -1,6 +1,5 @@
 package siosio.sql
 
-import java.sql.*
 import javax.sql.*
 import kotlin.reflect.*
 

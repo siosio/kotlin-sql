@@ -1,6 +1,6 @@
 package siosio.sql
 
-import org.h2.jdbcx.JdbcDataSource
+import org.h2.jdbcx.*
 
 fun createSql(): Database {
   return createSql(null)

@@ -1,9 +1,8 @@
 package siosio.sql
 
-import org.hamcrest.*
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.*
-import org.junit.Assert.*
+import org.junit.Assert.assertThat
 
 class UtilsTest {
 

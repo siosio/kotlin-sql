@@ -1,6 +1,6 @@
 package siosio.sql.converter
 
-import java.sql.ResultSet
+import java.sql.*
 
 class ObjectConverter : Converter<Any> {
   override fun convert(row: ResultSet, columnName: String): Any {
