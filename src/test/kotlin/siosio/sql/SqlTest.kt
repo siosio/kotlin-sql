@@ -92,7 +92,7 @@ class SqlTest {
   }
 
   class Execute {
-    data class TestEntity(val id: Int);
+    data class TestEntity(val id: Int)
     @Test
     fun executeDDL() {
       val sut = createSql()
@@ -115,7 +115,7 @@ class SqlTest {
   }
 
   class WithTransaction {
-    data class TestEntity(val id: Int);
+    data class TestEntity(val id: Int)
 
     @Test
     fun commitTransaction() {
