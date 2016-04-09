@@ -3,6 +3,8 @@ SQL execution library of Kotlin
 
 ##Example
 ```kotlin
+data class User(val id: Long, val name: String)
+
 val dataSource = JdbcDataSource()
 dataSource.setURL("jdbc:h2:mem:kotlin-sql-example;DB_CLOSE_DELAY=-1")
 dataSource.user = "sa"
