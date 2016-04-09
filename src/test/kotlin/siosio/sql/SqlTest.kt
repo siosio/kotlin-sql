@@ -1,10 +1,10 @@
 package siosio.sql
 
-import org.hamcrest.*
-import org.hamcrest.CoreMatchers.*
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.core.*
 import org.junit.*
-import org.junit.Assert.*
+import org.junit.Assert.assertThat
 import org.junit.experimental.runners.*
 import org.junit.rules.*
 import org.junit.runner.*
@@ -25,7 +25,7 @@ class SqlTest {
       val sut = createSql()
 
       val actual = ArrayList<Ret>()
-      sut.eachRow(Ret::class, "select 'a_0' union all select 'a_1' order by 1") {
+      sut.eachRow(Ret::class, "select 'a_0' str union all select 'a_1' order by 1") {
         actual.add(it)
       }
       assertThat(actual, hasItems(
@@ -39,7 +39,7 @@ class SqlTest {
       val sut = createSql()
 
       val actual = ArrayList<MultiCol>()
-      sut.eachRow(MultiCol::class, "select 'abc', 1234") {
+      sut.eachRow(MultiCol::class, "select 'abc' str, 1234 i") {
         actual.add(it)
       }
       assertThat(actual, IsCollectionContaining.hasItems(
@@ -52,8 +52,8 @@ class SqlTest {
       val sut = createSql(object : ValueConverterFactory() {
         override fun create(columnName: String, type: KType): Converter<*> {
           return object : Converter<Any?> {
-            override fun convert(row: ResultSet, columnIndex: Int): Any? {
-              val value = row.getInt(columnIndex)
+            override fun convert(row: ResultSet, columnName: String): Any? {
+              val value = row.getInt(columnName)
               return (value * 2).toString()
             }
           }
@@ -61,7 +61,7 @@ class SqlTest {
       })
 
       val actual = ArrayList<Ret>()
-      sut.eachRow(Ret::class, "select 0  union all select 1 order by 1") {
+      sut.eachRow(Ret::class, "select 0 str union all select 1 order by 1") {
         actual.add(it)
       }
       assertThat(actual, hasItems(
@@ -78,7 +78,7 @@ class SqlTest {
     @Test
     fun findFirstRow() {
       val sut = createSql()
-      val result = sut.findFirstRow(Ret::class, "select 'abcdefg'")
+      val result = sut.findFirstRow(Ret::class, "select 'abcdefg' str")
       assertThat(result, `is`(Ret("abcdefg")))
     }
 

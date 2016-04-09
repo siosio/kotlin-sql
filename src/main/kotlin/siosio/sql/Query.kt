@@ -75,7 +75,7 @@ class Query(internal val connection: Connection, private val converterFactory: V
   private fun <T : Any> createResultObject(classMeta: ClassMeta<T>, rs: ResultSet): T {
     val args = classMeta.parameters.mapIndexed { i, parameter ->
       val converter = converterFactory.create(parameter.name, parameter.type)
-      converter.convert(rs, i + 1)
+      converter.convert(rs, toColumnName(parameter.name))
     }.toTypedArray()
 
     return classMeta.createInstance(args)

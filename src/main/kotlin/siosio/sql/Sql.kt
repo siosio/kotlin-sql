@@ -52,13 +52,4 @@ class Sql(private val dataSource: DataSource, converterFactory: ValueConverterFa
   }
 
   private fun getConnection() = dataSource.connection
-
-  private fun <T : Any> createResultObject(classMeta: ClassMeta<T>, rs: ResultSet): T {
-    val args = classMeta.parameters.mapIndexed { i, parameter ->
-      val converter = converterFactory.create(parameter.name, parameter.type)
-      converter.convert(rs, i + 1)
-    }.toTypedArray()
-
-    return classMeta.createInstance(args)
-  }
 }

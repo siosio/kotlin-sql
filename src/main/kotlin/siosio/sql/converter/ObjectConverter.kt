@@ -3,7 +3,7 @@ package siosio.sql.converter
 import java.sql.ResultSet
 
 class ObjectConverter : Converter<Any> {
-  override fun convert(row: ResultSet, columnIndex: Int): Any {
-    return row.getObject(columnIndex)
+  override fun convert(row: ResultSet, columnName: String): Any {
+    return row.getObject(columnName)
   }
 }
