@@ -9,8 +9,8 @@ val dataSource = JdbcDataSource()
 dataSource.setURL("jdbc:h2:mem:kotlin-sql-example;DB_CLOSE_DELAY=-1")
 dataSource.user = "sa"
 
-val sql = Sql(dataSource)
-sql.withTransaction {
+val database = Database(dataSource)
+database.withTransaction {
   execute("create table users (id bigint auto_increment, name varchar2(100), primary key(id))")
 
   (1..10).forEach {
@@ -18,7 +18,7 @@ sql.withTransaction {
   }
 }
 
-sql.eachRow(User::class, "select id, name from users order by id") {
+database.eachRow(User::class, "select id, name from users order by id") {
   println("it = ${it}")
 }
 ```

@@ -5,7 +5,7 @@ import javax.sql.*
 import kotlin.reflect.*
 
 
-class Sql(private val dataSource: DataSource, converterFactory: ValueConverterFactory?) {
+class Database(private val dataSource: DataSource, converterFactory: ValueConverterFactory?) {
 
   var converterFactory: ValueConverterFactory
 

@@ -2,11 +2,11 @@ package siosio.sql
 
 import org.h2.jdbcx.JdbcDataSource
 
-fun createSql(): Sql {
+fun createSql(): Database {
   return createSql(null)
 }
 
-fun createSql(factory: ValueConverterFactory?): Sql {
+fun createSql(factory: ValueConverterFactory?): Database {
   val dataSource = JdbcDataSource()
   dataSource.setURL("jdbc:h2:mem:kotlin-sql;DB_CLOSE_DELAY=-1")
   dataSource.user = "sa"
@@ -15,5 +15,5 @@ fun createSql(factory: ValueConverterFactory?): Sql {
       it.execute("drop table if exists test")
     }
   }
-  return Sql(dataSource, factory)
+  return Database(dataSource, factory)
 }

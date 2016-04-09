@@ -17,7 +17,7 @@ data class Ret(val str: String)
 data class MultiCol(val str: String, val i: Int)
 
 @RunWith(Enclosed::class)
-class SqlTest {
+class DatabaseTest {
 
   class ForEach {
     @Test
