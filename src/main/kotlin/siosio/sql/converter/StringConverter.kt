@@ -6,4 +6,6 @@ class StringConverter : Converter<String?> {
   override fun convert(row: ResultSet, columnName: String): String? {
     return row.getString(columnName)
   }
+
+  override fun getTypeName(): String = "String"
 }

@@ -59,7 +59,6 @@ class Query(internal val connection: Connection, private val converterFactory: V
 
   fun execute(sql: String): Unit {
     connection.createStatement().use { st ->
-      logger.trace("execute sql. sql: ${sql}")
       st.execute(sql)
     }
   }

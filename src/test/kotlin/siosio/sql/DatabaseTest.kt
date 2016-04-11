@@ -52,6 +52,10 @@ class DatabaseTest {
       val sut = createDatabase(object : ValueConverterFactory() {
         override fun create(columnName: String, type: KType): Converter<*> {
           return object : Converter<Any?> {
+            override fun getTypeName(): String {
+              return "String"
+            }
+
             override fun convert(row: ResultSet, columnName: String): Any? {
               val value = row.getInt(columnName)
               return (value * 2).toString()

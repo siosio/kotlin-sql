@@ -11,4 +11,6 @@ class IntConverter : Converter<Int?> {
       value
     }
   }
+
+  override fun getTypeName(): String = "Integer"
 }
