@@ -6,7 +6,7 @@ import org.junit.*
 import org.junit.Assert.*
 import org.hamcrest.CoreMatchers.*
 
-class IntConverterTest2 {
+class IntConverterTest {
 
   data class Num(val i: Int?)
 
