@@ -22,7 +22,7 @@ class DatabaseTest {
   class ForEach {
     @Test
     fun `find all rows(single column)`() {
-      val sut = createSql()
+      val sut = createDatabase()
 
       val actual = ArrayList<Ret>()
       sut.eachRow(Ret::class, "select 'a_0' str union all select 'a_1' order by 1") {
@@ -36,7 +36,7 @@ class DatabaseTest {
 
     @Test
     fun `find all rows(multiple column)`() {
-      val sut = createSql()
+      val sut = createDatabase()
 
       val actual = ArrayList<MultiCol>()
       sut.eachRow(MultiCol::class, "select 'abc' str, 1234 i") {
@@ -49,7 +49,7 @@ class DatabaseTest {
 
     @Test
     fun `custom converter`() {
-      val sut = createSql(object : ValueConverterFactory() {
+      val sut = createDatabase(object : ValueConverterFactory() {
         override fun create(columnName: String, type: KType): Converter<*> {
           return object : Converter<Any?> {
             override fun convert(row: ResultSet, columnName: String): Any? {
@@ -77,14 +77,14 @@ class DatabaseTest {
 
     @Test
     fun findFirstRow() {
-      val sut = createSql()
+      val sut = createDatabase()
       val result = sut.findFirstRow(Ret::class, "select 'abcdefg' str")
       assertThat(result, `is`(Ret("abcdefg")))
     }
 
     @Test
     fun findFirstRow_noDataFound() {
-      val sut = createSql()
+      val sut = createDatabase()
 
       expectedException.expect(NoDataFoundException::class.java)
       sut.findFirstRow(Ret::class, "select 'abcdefg' where 1 = 2")
@@ -95,7 +95,7 @@ class DatabaseTest {
     data class TestEntity(val id: Int)
     @Test
     fun executeDDL() {
-      val sut = createSql()
+      val sut = createDatabase()
       sut.execute("create table test(id int, primary key(id))")
 
       sut.execute("insert into test values (1)")
@@ -119,7 +119,7 @@ class DatabaseTest {
 
     @Test
     fun commitTransaction() {
-      val sut = createSql()
+      val sut = createDatabase()
 
       sut.withTransaction {
         execute("create table test(id int, primary key(id))")
@@ -140,7 +140,7 @@ class DatabaseTest {
 
     @Test
     fun rollbackTransaction() {
-      val sut = createSql()
+      val sut = createDatabase()
 
       try {
         sut.withTransaction {

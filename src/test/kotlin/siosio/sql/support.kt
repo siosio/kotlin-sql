@@ -2,11 +2,11 @@ package siosio.sql
 
 import org.h2.jdbcx.*
 
-fun createSql(): Database {
-  return createSql(null)
+fun createDatabase(): Database {
+  return createDatabase(null)
 }
 
-fun createSql(factory: ValueConverterFactory?): Database {
+fun createDatabase(factory: ValueConverterFactory?): Database {
   val dataSource = JdbcDataSource()
   dataSource.setURL("jdbc:h2:mem:kotlin-sql;DB_CLOSE_DELAY=-1")
   dataSource.user = "sa"
