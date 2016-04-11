@@ -2,6 +2,7 @@ package siosio.sql
 
 import org.slf4j.*
 import java.sql.*
+import java.util.*
 
 val logger: Logger = LoggerFactory.getLogger("sql")
 
@@ -17,7 +18,7 @@ inline fun Connection.use(block: (Connection) -> Unit) {
   }
 }
 
-inline fun Statement.use(block: (Statement) -> Unit) {
+inline fun <ST: Statement> ST.use(block: (ST) -> Unit) {
   try {
     block(this)
   } finally {
@@ -39,4 +40,12 @@ inline fun ResultSet.use(block: (ResultSet) -> Unit) {
       logger.warn("failed to close result set.", e)
     }
   }
+}
+
+inline fun <RT> ResultSet.map(block: ResultSet.() -> RT): List<RT> {
+  var rows = ArrayList<RT>()
+  while (next()) {
+    rows.add(block())
+  }
+  return rows
 }

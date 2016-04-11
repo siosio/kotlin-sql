@@ -8,7 +8,6 @@ class ClassMeta<T : Any>(type: KClass<T>) {
   val primaryConstructor: KFunction<T>
 
   init {
-
     val constructor = type.primaryConstructor
         ?: throw IllegalArgumentException("invalid class. should have a primary constructor.")
 

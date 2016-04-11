@@ -7,5 +7,7 @@ class StringConverter : Converter<String?> {
     return row.getString(columnName)
   }
 
-  override fun getTypeName(): String = "String"
+  override fun getType(): Class<*> {
+    return String::class.java
+  }
 }

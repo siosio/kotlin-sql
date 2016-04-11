@@ -12,5 +12,7 @@ class IntConverter : Converter<Int?> {
     }
   }
 
-  override fun getTypeName(): String = "Integer"
+  override fun getType(): Class<*> {
+    return Integer.TYPE
+  }
 }

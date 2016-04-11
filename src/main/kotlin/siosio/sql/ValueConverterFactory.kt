@@ -7,15 +7,17 @@ import kotlin.reflect.jvm.*
 open class ValueConverterFactory {
 
   companion object {
-    private val anyConverter = ObjectConverter()
+    private val converters = listOfNotNull(StringConverter(), IntConverter(), ObjectConverter())
 
-    private val converters = listOfNotNull(StringConverter(), IntConverter())
+    val convertor = mapOf<KType, Converter<*>>(
+        Int::class.defaultType to IntConverter()
+    )
   }
 
   open fun create(columnName: String, type: KType): Converter<*> {
-    val typeName = type.javaType.typeName
+    val clazz = type.javaType as Class<*>
     return converters.firstOrNull() {
-      typeName.contains(it.getTypeName())
-    } ?: anyConverter
+      it.getType().isAssignableFrom(clazz)
+    }!!
   }
 }

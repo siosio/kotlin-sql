@@ -3,6 +3,7 @@ package siosio.sql
 import org.slf4j.*
 import java.io.*
 import java.sql.*
+import java.util.*
 import kotlin.reflect.*
 
 class Query(internal val connection: Connection, private val converterFactory: ValueConverterFactory) : Closeable {
@@ -27,9 +28,9 @@ class Query(internal val connection: Connection, private val converterFactory: V
     }
   }
 
-  fun <T : Any> forEach(type: KClass<T>, query: String, block: (row: T) -> Unit): Unit {
+  fun <T : Any> forEach(type: KClass<T>, query: String, condition: Array<out Any>, block: (row: T) -> Unit): Unit {
     val classMeta = ClassMeta(type)
-    executeQuery(query) {
+    executeQuery(query, condition) {
       while (it.next()) {
         val result = createResultObject(classMeta, it)
         block(result)
@@ -47,7 +48,7 @@ class Query(internal val connection: Connection, private val converterFactory: V
    */
   fun <T : Any> findFirstRow(type: KClass<T>, query: String): T {
     val classMeta = ClassMeta(type)
-    executeQuery(query) {
+    executeQuery(query, emptyArray()) {
       if (it.next()) {
         return createResultObject(classMeta, it)
       } else {
@@ -57,15 +58,30 @@ class Query(internal val connection: Connection, private val converterFactory: V
     throw IllegalStateException("not arrowed hear.")
   }
 
+  fun <T : Any> find(type: KClass<T>, query: String, condition: Array<out Any>): List<T> {
+    val classMeta = ClassMeta(type)
+
+    val result = ArrayList<T>()
+    executeQuery(query, condition) {
+      while (it.next()) {
+        result.add(createResultObject(classMeta, it))
+      }
+    }
+    return result
+  }
+
   fun execute(sql: String): Unit {
     connection.createStatement().use { st ->
       st.execute(sql)
     }
   }
 
-  private inline fun <T> executeQuery(query: String, block: (ResultSet) -> T): Unit {
-    connection.createStatement().use { st ->
-      st.executeQuery(query).use { rs ->
+  private inline fun <T> executeQuery(query: String, condition: Array<out Any>, block: (ResultSet) -> T): Unit {
+    connection.prepareStatement(query).use { st ->
+      condition.forEachIndexed { index, param ->
+        st.setObject(index + 1, param)
+      }
+      st.executeQuery().use { rs ->
         block(rs)
       }
     }

@@ -6,7 +6,7 @@ import kotlin.reflect.*
 
 class Database(private val dataSource: DataSource, converterFactory: ValueConverterFactory?) {
 
-  var converterFactory: ValueConverterFactory
+  private val converterFactory: ValueConverterFactory
 
   init {
     if (converterFactory == null) {
@@ -18,9 +18,9 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
 
   constructor(dataSource: DataSource) : this(dataSource, null)
 
-  fun <T : Any> eachRow(type: KClass<T>, query: String, block: (row: T) -> Unit) {
+  fun <T : Any> eachRow(type: KClass<T>, query: String, vararg condition: Any = emptyArray(), block: (row: T) -> Unit) {
     Query(getConnection(), converterFactory).use {
-      forEach(type, query) {
+      forEach(type, query, condition) {
         block(it)
       }
     }
@@ -32,6 +32,15 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
     }
   }
 
+  fun <T : Any> find(type: KClass<T>, query: String, vararg condition: Any = emptyArray()): List<T> {
+    return Query(getConnection(), converterFactory).use {
+      this.find(type, query, condition)
+    }
+  }
+
+  /**
+   *
+   */
   fun withTransaction(transaction: Query.() -> Unit): Unit {
     Query(getConnection(), converterFactory).use {
       connection.autoCommit = false
@@ -44,11 +53,24 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
     }
   }
 
+  /**
+   * execute sql.
+   *
+   * the transaction is automatically committed.
+   *
+   * @param sql sql
+   * @see Query#execute
+   */
   fun execute(sql: String) {
     Query(getConnection(), converterFactory).use {
       execute(sql)
     }
   }
 
+  /**
+   * create databae connection.
+   *
+   * @return database connection
+   */
   private fun getConnection() = dataSource.connection
 }

@@ -5,5 +5,7 @@ import java.sql.*
 interface Converter<T> {
   fun convert(row: ResultSet, columnName: String): T
 
-  fun getTypeName(): String
+  fun getType(): java.lang.Class<*> {
+    return Any::class.java
+  }
 }

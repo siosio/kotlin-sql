@@ -52,10 +52,6 @@ class DatabaseTest {
       val sut = createDatabase(object : ValueConverterFactory() {
         override fun create(columnName: String, type: KType): Converter<*> {
           return object : Converter<Any?> {
-            override fun getTypeName(): String {
-              return "String"
-            }
-
             override fun convert(row: ResultSet, columnName: String): Any? {
               val value = row.getInt(columnName)
               return (value * 2).toString()
@@ -160,6 +156,33 @@ class DatabaseTest {
       sut.eachRow(TestEntity::class, "select id from test") {
         assert(false)
       }
+    }
+  }
+
+  class Find {
+
+    data class Ret(val str: String)
+
+    @Test
+    fun withoutInParameter() {
+      val sut = createDatabase()
+
+      val actual = sut.find(Ret::class, "select '12345' str")
+      assertThat(actual, hasItems(
+          Ret("12345")
+      ))
+    }
+
+    @Test
+    fun withInParameter() {
+      val sut = createDatabase()
+
+      data class Condition(val name : String)
+
+      val actual = sut.find(Ret::class, "select '12345' str where 'hoge' = ?", "hoge")
+      assertThat(actual, hasItems(
+          Ret("12345")
+      ))
     }
   }
 }
