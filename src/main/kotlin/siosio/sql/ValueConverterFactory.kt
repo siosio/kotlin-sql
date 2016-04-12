@@ -2,7 +2,6 @@ package siosio.sql
 
 import siosio.sql.converter.*
 import kotlin.reflect.*
-import kotlin.reflect.jvm.*
 
 open class ValueConverterFactory {
 
@@ -15,9 +14,9 @@ open class ValueConverterFactory {
   }
 
   open fun create(columnName: String, type: KType): Converter<*> {
-    val clazz = type.javaType as Class<*>
+    val typeString = type.toString()
     return converters.firstOrNull() {
-      it.getType().isAssignableFrom(clazz)
+      it.isConvertible(typeString)
     }!!
   }
 }

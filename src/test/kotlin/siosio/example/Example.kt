@@ -25,6 +25,11 @@ object Example {
     database.eachRow(User::class, "select id, name from users order by id") {
       println("it = ${it}")
     }
+
+    println("--------------------------------------------------")
+
+    database.eachRow(User::class, "select * from users where id = ?", 5) {
+      println("it = ${it}")
+    }
   }
 }
-

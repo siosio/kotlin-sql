@@ -7,7 +7,10 @@ class StringConverter : Converter<String?> {
     return row.getString(columnName)
   }
 
-  override fun getType(): Class<*> {
-    return String::class.java
+  override fun isConvertible(type: String): Boolean = typePattern.matches(type)
+
+  companion object {
+    private  val typePattern = Regex("kotlin.String\\??")
   }
+
 }

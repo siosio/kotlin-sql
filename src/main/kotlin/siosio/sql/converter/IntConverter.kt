@@ -12,7 +12,9 @@ class IntConverter : Converter<Int?> {
     }
   }
 
-  override fun getType(): Class<*> {
-    return Integer.TYPE
+  override fun isConvertible(type: String): Boolean = typePattern.matches(type)
+
+  companion object {
+    private  val typePattern = Regex("kotlin.Int\\??")
   }
 }

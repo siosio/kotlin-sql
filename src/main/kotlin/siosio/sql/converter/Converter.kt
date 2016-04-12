@@ -5,7 +5,7 @@ import java.sql.*
 interface Converter<T> {
   fun convert(row: ResultSet, columnName: String): T
 
-  fun getType(): java.lang.Class<*> {
-    return Any::class.java
+  fun isConvertible(type: String): Boolean {
+    return false
   }
 }
