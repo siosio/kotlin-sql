@@ -6,10 +6,11 @@ import kotlin.reflect.*
 open class ValueConverterFactory {
 
   companion object {
-    private val converters = listOfNotNull(StringConverter(), IntConverter(), ObjectConverter())
-
-    val convertor = mapOf<KType, Converter<*>>(
-        Int::class.defaultType to IntConverter()
+    private val converters = listOfNotNull(
+        StringConverter(),
+        IntConverter(),
+        DecimalConverter(),
+        ObjectConverter()
     )
   }
 

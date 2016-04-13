@@ -15,6 +15,6 @@ class IntConverter : Converter<Int?> {
   override fun isConvertible(type: String): Boolean = typePattern.matches(type)
 
   companion object {
-    private  val typePattern = Regex("kotlin.Int\\??")
+    private  val typePattern = Regex("${Int::class.qualifiedName}\\??")
   }
 }

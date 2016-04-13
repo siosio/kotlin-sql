@@ -10,7 +10,7 @@ class StringConverter : Converter<String?> {
   override fun isConvertible(type: String): Boolean = typePattern.matches(type)
 
   companion object {
-    private  val typePattern = Regex("kotlin.String\\??")
+    private  val typePattern = Regex("${String::class.qualifiedName}\\??")
   }
 
 }
