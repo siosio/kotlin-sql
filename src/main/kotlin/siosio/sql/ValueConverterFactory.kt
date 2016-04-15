@@ -10,6 +10,7 @@ open class ValueConverterFactory {
         StringConverter(),
         IntConverter(),
         DecimalConverter(),
+        BinaryConverter(),
         ObjectConverter()
     )
   }
