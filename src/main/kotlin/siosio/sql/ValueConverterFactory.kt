@@ -9,6 +9,7 @@ open class ValueConverterFactory {
     private val converters = listOfNotNull(
         StringConverter(),
         IntConverter(),
+        LongConverter(),
         DecimalConverter(),
         BinaryConverter(),
         ObjectConverter()
