@@ -6,7 +6,10 @@ import java.sql.*
 import java.util.*
 import kotlin.reflect.*
 
-class Query(internal val connection: Connection, private val converterFactory: ValueConverterFactory) : Closeable {
+class Query(
+    internal val connection: Connection,
+    private val converterFactory: ValueConverterFactory,
+    private val config: Statement.() -> Unit) : Closeable {
 
   companion object {
     private val logger = LoggerFactory.getLogger(Query::class.java)
@@ -28,7 +31,7 @@ class Query(internal val connection: Connection, private val converterFactory: V
     }
   }
 
-  fun <T : Any> forEach(type: KClass<T>, query: String, condition: Array<out Any>, block: (row: T) -> Unit): Unit {
+  fun <T : Any, C : Any> forEach(type: KClass<T>, query: String, condition: C?, block: (row: T) -> Unit): Unit {
     val classMeta = ClassMeta(type)
     executeQuery(query, condition) {
       while (it.next()) {
@@ -48,7 +51,7 @@ class Query(internal val connection: Connection, private val converterFactory: V
    */
   fun <T : Any> findFirstRow(type: KClass<T>, query: String): T {
     val classMeta = ClassMeta(type)
-    executeQuery(query, emptyArray()) {
+    executeQuery(query, null) {
       if (it.next()) {
         return createResultObject(classMeta, it)
       } else {
@@ -58,7 +61,7 @@ class Query(internal val connection: Connection, private val converterFactory: V
     throw IllegalStateException("not arrowed hear.")
   }
 
-  fun <T : Any> find(type: KClass<T>, query: String, condition: Array<out Any>): List<T> {
+  fun <T : Any, C : Any> find(type: KClass<T>, query: String, condition: C?): List<T> {
     val classMeta = ClassMeta(type)
 
     val result = ArrayList<T>()
@@ -72,15 +75,31 @@ class Query(internal val connection: Connection, private val converterFactory: V
 
   fun execute(sql: String): Unit {
     connection.createStatement().use { st ->
+      st.config()
       st.execute(sql)
     }
   }
 
-  private inline fun <T> executeQuery(query: String, condition: Array<out Any>, block: (ResultSet) -> T): Unit {
-    connection.prepareStatement(query).use { st ->
-      condition.forEachIndexed { index, param ->
-        st.setObject(index + 1, param)
+  private inline fun <T, C : Any> executeQuery(query: String, condition: C?, block: (ResultSet) -> T): Unit {
+    val (sql, parameters) = SqlHolder.valueOf(query)
+
+    connection.prepareStatement(sql).use { st ->
+      st.config()
+
+      if (logger.isDebugEnabled) {
+        logger.debug("statement config: fetchSize[{}], maxRows[{}]", st.fetchSize, st.maxRows)
       }
+
+      condition?.let {
+        val classMeta = ClassMeta(it.javaClass.kotlin)
+        parameters.forEach { parameter ->
+          val p = classMeta.parameters.first {
+            it.name == parameter.name
+          }
+          st.setObject(parameter.index, p.member.call(condition))
+        }
+      }
+
       st.executeQuery().use { rs ->
         block(rs)
       }

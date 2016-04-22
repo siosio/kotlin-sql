@@ -18,7 +18,8 @@ database.withTransaction {
   }
 }
 
-database.eachRow(User::class, "select id, name from users order by id") {
+data class Param(val id: Long)
+database.eachRow(User::class, "select * from users where id = :id", Param(5)) {
   println("it = ${it}")
 }
 ```

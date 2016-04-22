@@ -28,7 +28,8 @@ object Example {
 
     println("--------------------------------------------------")
 
-    database.eachRow(User::class, "select * from users where id = ?", 5) {
+    data class Param(val id: Long)
+    database.eachRow(User::class, "select * from users where id = :id", Param(5)) {
       println("it = ${it}")
     }
   }

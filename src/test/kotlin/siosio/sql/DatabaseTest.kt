@@ -83,6 +83,16 @@ class DatabaseTest {
     }
 
     @Test
+    fun withConfig() {
+      val sut = createDatabase()
+      sut.config {
+        fetchSize = 10
+      }
+      val result = sut.findFirstRow(Ret::class, "select 'hoge' str")
+      assertThat(result, `is`(Ret("hoge")))
+    }
+
+    @Test
     fun findFirstRow_noDataFound() {
       val sut = createDatabase()
 
@@ -179,7 +189,9 @@ class DatabaseTest {
 
       data class Condition(val name : String)
 
-      val actual = sut.find(Ret::class, "select '12345' str where 'hoge' = ?", "hoge")
+      val condition = Condition("hoge")
+
+      val actual = sut.find(Ret::class, "select '12345' str where 'hoge' = :name", condition)
       assertThat(actual, hasItems(
           Ret("12345")
       ))
