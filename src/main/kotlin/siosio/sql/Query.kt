@@ -31,7 +31,7 @@ class Query(
     }
   }
 
-  fun <T : Any, C : Any> forEach(type: KClass<T>, query: String, condition: C?, block: (row: T) -> Unit): Unit {
+  fun <T : Any, PARAM : Any> forEach(type: KClass<T>, query: String, condition: PARAM?, block: (row: T) -> Unit): Unit {
     val classMeta = ClassMeta(type)
     executeQuery(query, condition) {
       while (it.next()) {
@@ -61,7 +61,7 @@ class Query(
     throw IllegalStateException("not arrowed hear.")
   }
 
-  fun <T : Any, C : Any> find(type: KClass<T>, query: String, condition: C?): List<T> {
+  fun <T : Any, PARAM : Any> find(type: KClass<T>, query: String, condition: PARAM?): List<T> {
     val classMeta = ClassMeta(type)
 
     val result = ArrayList<T>()
@@ -74,40 +74,39 @@ class Query(
   }
 
   fun execute(sql: String): Unit {
-    connection.createStatement().use { st ->
-      st.config()
-      st.execute(sql)
-    }
+    execute(sql, null)
   }
 
-  fun <T : Any> execute(sql: String, param: T): Unit {
+  fun <PARAM : Any> execute(sql: String, param: PARAM?): Unit {
     val (jdbcSql, parameters) = SqlHolder.valueOf(sql)
 
     connection.prepareStatement(jdbcSql).use { st ->
       st.config()
-      setInParameter(st, parameters, param)
+
+      if (logger.isDebugEnabled) {
+        logger.debug("execute sql=[{}], statement config: fetchSize[{}], maxRows[{}]", jdbcSql, st.fetchSize, st.maxRows)
+      }
+
+      param?.let {
+        setInParameter(st, parameters, it)
+      }
+
       st.execute()
     }
   }
 
-  private inline fun <T, C : Any> executeQuery(query: String, condition: C?, block: (ResultSet) -> T): Unit {
-    val (sql, parameters) = SqlHolder.valueOf(query)
+  private inline fun <T, PARAM : Any> executeQuery(query: String, condition: PARAM?, block: (ResultSet) -> T): Unit {
+    val (jdbcSql, parameters) = SqlHolder.valueOf(query)
 
-    connection.prepareStatement(sql).use { st ->
+    connection.prepareStatement(jdbcSql).use { st ->
       st.config()
 
       if (logger.isDebugEnabled) {
-        logger.debug("statement config: fetchSize[{}], maxRows[{}]", st.fetchSize, st.maxRows)
+        logger.debug("execute sql=[{}], statement config: fetchSize[{}], maxRows[{}]", jdbcSql, st.fetchSize, st.maxRows)
       }
 
       condition?.let {
-        val classMeta = ClassMeta(it.javaClass.kotlin)
-        parameters.forEach { parameter ->
-          val p = classMeta.parameters.first {
-            it.name == parameter.name
-          }
-          st.setObject(parameter.index, p.member.call(condition))
-        }
+        setInParameter(st, parameters, it)
       }
 
       st.executeQuery().use { rs ->
@@ -126,7 +125,7 @@ class Query(
 
       val inParameter = p.member.call(param)
       if (logger.isDebugEnabled) {
-        logger.debug("in parameter:{} value:{}", parameter.index, inParameter)
+        logger.debug("in parameter[{}] value=[{}]", parameter.index, inParameter)
       }
       st.setObject(parameter.index, inParameter)
     }

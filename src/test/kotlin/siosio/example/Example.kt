@@ -5,10 +5,12 @@ import siosio.sql.*
 
 object Example {
 
-  data class User(val id: Long, val name: String)
+  data class User(val id: Long? = null, val name: String)
 
   @JvmStatic
   fun main(args: Array<String>) {
+    System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "DEBUG")
+
     val dataSource = JdbcDataSource()
     dataSource.setURL("jdbc:h2:mem:kotlin-sql-example;DB_CLOSE_DELAY=-1")
     dataSource.user = "sa"
@@ -18,7 +20,7 @@ object Example {
       execute("create table users (id bigint auto_increment, name varchar2(100), primary key(id))")
 
       (1..10).forEach {
-        execute("insert into users (name) values ('name_$it')")
+        execute("insert into users (name) values (:name)", User(name = "name_$it"))
       }
     }
 
