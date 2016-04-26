@@ -85,6 +85,12 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
     }
   }
 
+  fun <T : Any> execute(sql: String, param: T) {
+    Query(getConnection(), converterFactory, config).use {
+      execute(sql, param)
+    }
+  }
+
   /**
    * create databae connection.
    *

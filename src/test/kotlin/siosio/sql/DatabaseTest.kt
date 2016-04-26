@@ -103,6 +103,7 @@ class DatabaseTest {
 
   class Execute {
     data class TestEntity(val id: Int)
+    data class WithParam(val name:String)
     @Test
     fun executeDDL() {
       val sut = createDatabase()
@@ -121,6 +122,20 @@ class DatabaseTest {
           `is`(TestEntity(2))
       ))
 
+    }
+
+    @Test
+    fun withData() {
+      val sut = createDatabase()
+
+      sut.withTransaction {
+        sut.execute("create table with_param(id int auto_increment not null, name varchar(100), primary key(id))")
+
+
+        1.until(10).forEachIndexed { index, num ->
+          sut.execute("insert into with_param (name) values (:name)", WithParam("name_$num"))
+        }
+      }
     }
   }
 

@@ -80,6 +80,16 @@ class Query(
     }
   }
 
+  fun <T : Any> execute(sql: String, param: T): Unit {
+    val (jdbcSql, parameters) = SqlHolder.valueOf(sql)
+
+    connection.prepareStatement(jdbcSql).use { st ->
+      st.config()
+      setInParameter(st, parameters, param)
+      st.execute()
+    }
+  }
+
   private inline fun <T, C : Any> executeQuery(query: String, condition: C?, block: (ResultSet) -> T): Unit {
     val (sql, parameters) = SqlHolder.valueOf(query)
 
@@ -103,6 +113,22 @@ class Query(
       st.executeQuery().use { rs ->
         block(rs)
       }
+    }
+  }
+
+  private fun <PARAM : Any> setInParameter(st: PreparedStatement, parameters: List<SqlHolder.Parameters>, param: PARAM) {
+    val classMeta = ClassMeta(param.javaClass.kotlin)
+
+    parameters.forEach { parameter ->
+      val p = classMeta.parameters.first {
+        it.name == parameter.name
+      }
+
+      val inParameter = p.member.call(param)
+      if (logger.isDebugEnabled) {
+        logger.debug("in parameter:{} value:{}", parameter.index, inParameter)
+      }
+      st.setObject(parameter.index, inParameter)
     }
   }
 
