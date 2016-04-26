@@ -129,7 +129,7 @@ class DatabaseTest {
       val sut = createDatabase()
 
       sut.withTransaction {
-        sut.execute("create table with_param(id int auto_increment not null, name varchar(100), primary key(id))")
+        sut.execute("create table if not exists with_param(id int auto_increment not null, name varchar(100), primary key(id))")
 
 
         1.until(10).forEachIndexed { index, num ->
