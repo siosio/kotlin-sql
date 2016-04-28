@@ -31,7 +31,11 @@ class Query(
     }
   }
 
-  fun <T : Any, PARAM : Any> forEach(type: KClass<T>, query: String, condition: PARAM?, block: (row: T) -> Unit): Unit {
+  fun <T : Any, PARAM : Any> eachRow(type: KClass<T>, query: String, block: (row: T) -> Unit): Unit {
+    eachRow(type, query, null, block)
+  }
+
+  fun <T : Any, PARAM : Any> eachRow(type: KClass<T>, query: String, condition: PARAM?, block: (row: T) -> Unit): Unit {
     val classMeta = ClassMeta(type)
     executeQuery(query, condition) {
       while (it.next()) {

@@ -30,7 +30,7 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
 
   fun <T : Any, C : Any> eachRow(type: KClass<T>, query: String, condition: C?, block: (row: T) -> Unit) {
     Query(getConnection(), converterFactory, config).use {
-      forEach(type, query, condition) {
+      eachRow(type, query, condition) {
         block(it)
       }
     }
