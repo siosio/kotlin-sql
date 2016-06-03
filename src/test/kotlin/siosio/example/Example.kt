@@ -19,9 +19,10 @@ object Example {
     database.withTransaction {
       execute("create table users (id bigint auto_increment, name varchar2(100), primary key(id))")
 
-      (1..10).forEach {
-        execute("insert into users (name) values (:name)", User(name = "name_$it"))
-      }
+      val users = (1..10).map {
+        User(name = "name_$it")
+      }.toList()
+      executeBatch("insert into users (name) values (:name)", users)
     }
 
     database.eachRow(User::class, "select id, name from users order by id") {

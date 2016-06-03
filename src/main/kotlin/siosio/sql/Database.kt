@@ -29,7 +29,7 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
   }
 
   fun <T : Any, C : Any> eachRow(type: KClass<T>, query: String, condition: C?, block: (row: T) -> Unit) {
-    Query(getConnection(), converterFactory, config).use {
+    createQuery().use {
       eachRow(type, query, condition) {
         block(it)
       }
@@ -51,7 +51,7 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
   }
 
   fun <T : Any, C : Any> find(type: KClass<T>, query: String, condition: C? = null): List<T> {
-    return Query(getConnection(), converterFactory, config).use {
+    return createQuery().use {
       this.find(type, query, condition)
     }
   }
@@ -60,7 +60,7 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
    *
    */
   fun withTransaction(transaction: Query.() -> Unit): Unit {
-    Query(getConnection(), converterFactory, config).use {
+    createQuery().use {
       connection.autoCommit = false
       try {
         transaction()
@@ -80,16 +80,24 @@ class Database(private val dataSource: DataSource, converterFactory: ValueConver
    * @see Query#execute
    */
   fun execute(sql: String) {
-    Query(getConnection(), converterFactory, config).use {
+    createQuery().use {
       execute(sql)
     }
   }
 
   fun <T : Any> execute(sql: String, param: T) {
-    Query(getConnection(), converterFactory, config).use {
+    createQuery().use {
       execute(sql, param)
     }
   }
+
+  fun <T : Any> executeBatch(sql: String, params: List<T>) {
+    createQuery().use {
+      executeBatch(sql, params)
+    }
+  }
+
+  private fun createQuery() = Query(getConnection(), converterFactory, config)
 
   /**
    * create databae connection.

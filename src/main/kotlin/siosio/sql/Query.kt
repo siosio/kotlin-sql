@@ -99,6 +99,24 @@ class Query(
     }
   }
 
+  fun <PARAM : Any> executeBatch(sql: String, params: List<PARAM>): Unit {
+    val (jdbcSql, parameters) = SqlHolder.valueOf(sql)
+
+    connection.prepareStatement(jdbcSql).use { st ->
+      st.config()
+
+      if (logger.isDebugEnabled) {
+        logger.debug("execute batch sql=[{}], statement config: fetchSize[{}], maxRows[{}]", jdbcSql, st.fetchSize, st.maxRows)
+      }
+
+      params.forEach { param ->
+        setInParameter(st, parameters, param)
+        st.addBatch()
+      }
+      st.executeBatch()
+    }
+  }
+
   private inline fun <T, PARAM : Any> executeQuery(query: String, condition: PARAM?, block: (ResultSet) -> T): Unit {
     val (jdbcSql, parameters) = SqlHolder.valueOf(query)
 

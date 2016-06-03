@@ -1,10 +1,10 @@
 package siosio.sql
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.hasItems
+import org.hamcrest.CoreMatchers.*
+import org.hamcrest.collection.*
 import org.hamcrest.core.*
 import org.junit.*
-import org.junit.Assert.assertThat
+import org.junit.Assert.*
 import org.junit.experimental.runners.*
 import org.junit.rules.*
 import org.junit.runner.*
@@ -103,7 +103,8 @@ class DatabaseTest {
 
   class Execute {
     data class TestEntity(val id: Int)
-    data class WithParam(val name:String)
+    data class WithParam(val name: String)
+
     @Test
     fun executeDDL() {
       val sut = createDatabase()
@@ -136,6 +137,32 @@ class DatabaseTest {
           sut.execute("insert into with_param (name) values (:name)", WithParam("name_$num"))
         }
       }
+    }
+  }
+
+  class ExecuteBatch {
+    data class TestEntity(val id: Int)
+
+    @Test
+    fun executeBatch() {
+      val sut = createDatabase()
+      sut.withTransaction {
+        execute("create table test(id int, primary key(id))")
+
+        val params = (1..10).map {
+          TestEntity(it)
+        }.toList()
+
+        executeBatch("insert into test(id) values (:id)", params)
+      }
+
+      val actual = sut.find(TestEntity::class, "select id from test order by id")
+      assertThat(actual, IsIterableContainingInOrder.contains(
+          *(1..10).map {
+            TestEntity(it)
+          }.toTypedArray()
+      ))
+
     }
   }
 
@@ -202,7 +229,7 @@ class DatabaseTest {
     fun withInParameter() {
       val sut = createDatabase()
 
-      data class Condition(val name : String)
+      data class Condition(val name: String)
 
       val condition = Condition("hoge")
 
