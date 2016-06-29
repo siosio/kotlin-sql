@@ -2,7 +2,7 @@ group 'siosio'
 version '0.0.1-SNAPSHOT'
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.13'
+  gradleVersion = '2.14'
 }
 
 buildscript {
