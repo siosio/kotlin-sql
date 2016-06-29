@@ -7,8 +7,6 @@ class StringConverter : Converter<String?> {
     return row.getString(columnName)
   }
 
-  override fun isConvertible(type: String): Boolean = typePattern.matches(type)
-
   companion object {
     private  val typePattern = Regex("${String::class.qualifiedName}\\??")
   }

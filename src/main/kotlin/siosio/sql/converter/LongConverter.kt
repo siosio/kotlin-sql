@@ -12,8 +12,6 @@ class LongConverter : Converter<Long?> {
     }
   }
 
-  override fun isConvertible(type: String): Boolean = typePattern.matches(type)
-
   companion object {
     private val typePattern = Regex("${Long::class.qualifiedName}\\??")
   }

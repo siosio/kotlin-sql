@@ -9,10 +9,6 @@ class DecimalConverter : Converter<BigDecimal?> {
     return row.getBigDecimal(columnName)
   }
 
-  override fun isConvertible(type: String): Boolean {
-    return typePattern.matches(type)
-  }
-
   companion object {
     private val typePattern = Regex("${BigDecimal::class.qualifiedName}\\??")
   }

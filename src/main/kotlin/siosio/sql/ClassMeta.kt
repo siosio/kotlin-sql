@@ -12,11 +12,11 @@ class ClassMeta<T : Any>(type: KClass<T>) {
         ?: throw IllegalArgumentException("invalid class. should have a primary constructor.")
 
     val members = type.members
-    parameters = constructor.parameters.map {
+    parameters = constructor.parameters.map {parameter ->
       val member = members.first { m ->
-        m.name == it.name
+        m.name == parameter.name
       }
-      Parameter(it.name!!, it.type, member)
+      Parameter(parameter.name!!, parameter.type, member)
     }
     primaryConstructor = constructor
 
